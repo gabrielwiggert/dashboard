@@ -1,16 +1,16 @@
 import { Typography, Paper, Box } from '@mui/material'
 
-const Home = () => (
+const SalesAnalytics = () => (
   <Paper sx={{ p: 3 }}>
     <Box>
       <Typography variant="h4" gutterBottom>
-        Home Page
+        Sales Analytics
       </Typography>
       <Typography variant="body1">
-        Welcome to our application!
+        Comprehensive analysis of sales trends, patterns, and performance indicators.
       </Typography>
     </Box>
   </Paper>
 )
 
-export default Home 
+export default SalesAnalytics 

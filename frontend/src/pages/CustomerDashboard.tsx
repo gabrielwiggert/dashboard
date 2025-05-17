@@ -1,16 +1,16 @@
 import { Typography, Paper, Box } from '@mui/material'
 
-const About = () => (
+const CustomerDashboard = () => (
   <Paper sx={{ p: 3 }}>
     <Box>
       <Typography variant="h4" gutterBottom>
-        About Page
+        Customer Dashboard
       </Typography>
       <Typography variant="body1">
-        This is the about page of our application.
+        Overview of customer metrics, behavior, and insights.
       </Typography>
     </Box>
   </Paper>
 )
 
-export default About 
+export default CustomerDashboard 

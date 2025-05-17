@@ -1,8 +1,16 @@
+import { Typography, Paper, Box } from '@mui/material'
+
 const About = () => (
-  <div>
-    <h1>About Page</h1>
-    <p>This is the about page of our application.</p>
-  </div>
+  <Paper sx={{ p: 3 }}>
+    <Box>
+      <Typography variant="h4" gutterBottom>
+        About Page
+      </Typography>
+      <Typography variant="body1">
+        This is the about page of our application.
+      </Typography>
+    </Box>
+  </Paper>
 )
 
 export default About 

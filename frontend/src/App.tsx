@@ -21,8 +21,8 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Box sx={{ flexGrow: 1 }}>
-          <AppBar position="static">
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <AppBar position="fixed">
             <Toolbar>
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 Dashboard
@@ -40,8 +40,8 @@ function App() {
               </Box>
             </Toolbar>
           </AppBar>
-
-          <Container sx={{ mt: 4 }}>
+          <Toolbar /> {/* This empty Toolbar acts as a spacer */}
+          <Container sx={{ flex: 1, py: 3 }}>
             <Routes>
               <Route path="/" element={<CustomerDashboard />} />
               <Route path="/top-products" element={<TopProducts />} />

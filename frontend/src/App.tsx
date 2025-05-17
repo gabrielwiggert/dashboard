@@ -6,10 +6,9 @@ import Home from './pages/Home'
 import About from './pages/About'
 import './App.css'
 
-// Create a theme instance
 const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     primary: {
       main: '#646cff',
     },

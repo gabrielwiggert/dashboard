@@ -1,4 +1,4 @@
-Fullstack sales analytics dashboard using Node and React.
+Fullstack sales analytics dashboard using Node and React - Express, GraphQL, Apollo, MongoDB/Mongoose, React Router, MUI, Recharts.
 
 Frontend: run 'npm i' and 'npm run dev' in the directory and open localhost:5173 in the browser.
 
@@ -32,54 +32,3 @@ npm start
 ```
 
 The GraphQL playground will be available at: http://localhost:4000/graphql
-
-## API Features
-
-- User Management (CRUD operations)
-- GraphQL Playground for testing queries and mutations
-
-## Example Queries
-
-```graphql
-# Get all users
-query {
-  users {
-    id
-    username
-    email
-    createdAt
-  }
-}
-
-# Get single user
-query {
-  user(id: "user_id") {
-    username
-    email
-  }
-}
-
-# Create user
-mutation {
-  createUser(username: "john_doe", email: "john@example.com") {
-    id
-    username
-    email
-    createdAt
-  }
-}
-
-# Update user
-mutation {
-  updateUser(id: "user_id", username: "jane_doe") {
-    id
-    username
-    email
-  }
-}
-
-# Delete user
-mutation {
-  deleteUser(id: "user_id")
-}
-``` 

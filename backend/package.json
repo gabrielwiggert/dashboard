@@ -10,13 +10,14 @@
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
+    "@biomejs/biome": "^1.9.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "graphql": "^16.8.1",
-    "mongoose": "^8.1.0",
-    "dotenv": "^16.3.1",
-    "cors": "^2.8.5"
+    "mongoose": "^8.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
   }
-} 
+}

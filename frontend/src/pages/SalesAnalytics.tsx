@@ -42,7 +42,7 @@ const SalesAnalytics = () => {
           Comprehensive analysis of sales trends, patterns, and performance indicators.
         </Typography>
 
-        <Box sx={{ mt: 3, mb: 4, display: 'flex', gap: 2 }}>
+        <Box sx={{ mt: 3, mb: 4, display: 'flex', gap: 2, justifyContent: 'center' }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Start Date"
@@ -63,7 +63,7 @@ const SalesAnalytics = () => {
           </LocalizationProvider>
         </Box>
 
-        <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid container spacing={3} sx={{ mb: 4, justifyContent: 'center' }}>
           <Grid item xs={12} md={6}>
             <Card>
               <CardContent sx={{ textAlign: 'center' }}>
@@ -97,7 +97,7 @@ const SalesAnalytics = () => {
             <Typography variant="h6" gutterBottom>
               Revenue by Category
             </Typography>
-            <Box sx={{ height: 400 }}>
+            <Box sx={{ height: 500, width: 500 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={mockSalesData}
@@ -124,7 +124,7 @@ const SalesAnalytics = () => {
             <Typography variant="h6" gutterBottom>
               Revenue Distribution
             </Typography>
-            <Box sx={{ height: 400 }}>
+            <Box sx={{ height: 500, width: 500 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie

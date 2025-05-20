@@ -1,5 +1,7 @@
 import { User } from './models/User.js';
 import { Product } from './models/Product.js';
+import { Customer } from './models/Customer.js';
+import { Order } from './models/Order.js';
 
 export const resolvers = {
   Query: {
@@ -38,6 +40,45 @@ export const resolvers = {
         }));
       } catch (error) {
         throw new Error('Error fetching top selling products');
+      }
+    },
+    getCustomerSpending: async (_, { customerId }) => {
+      try {
+        // Check if customer exists
+        const customer = await Customer.findById(customerId);
+        if (!customer) {
+          throw new Error('Customer not found');
+        }
+
+        // Get all completed orders for the customer
+        const orders = await Order.find({
+          customer: customerId,
+          status: 'COMPLETED'
+        }).sort({ orderDate: -1 });
+
+        if (orders.length === 0) {
+          return {
+            totalSpent: 0,
+            averageOrderValue: 0,
+            lastOrderDate: null,
+            numberOfOrders: 0
+          };
+        }
+
+        // Calculate metrics
+        const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        const averageOrderValue = totalSpent / orders.length;
+        const lastOrderDate = orders[0].orderDate; // First order in the sorted array is the most recent
+        const numberOfOrders = orders.length;
+
+        return {
+          totalSpent,
+          averageOrderValue,
+          lastOrderDate,
+          numberOfOrders
+        };
+      } catch (error) {
+        throw new Error('Error fetching customer spending data');
       }
     },
   },

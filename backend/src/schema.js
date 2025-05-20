@@ -25,10 +25,41 @@ export const typeDefs = `#graphql
     rank: Int!
   }
 
+  type Customer {
+    id: ID!
+    name: String!
+    email: String!
+    phone: String
+    createdAt: String!
+  }
+
+  type OrderItem {
+    product: Product!
+    quantity: Int!
+    price: Float!
+  }
+
+  type Order {
+    id: ID!
+    customer: Customer!
+    items: [OrderItem!]!
+    totalAmount: Float!
+    orderDate: String!
+    status: String!
+  }
+
+  type CustomerSpending {
+    totalSpent: Float!
+    averageOrderValue: Float!
+    lastOrderDate: String
+    numberOfOrders: Int!
+  }
+
   type Query {
     users: [User!]!
     user(id: ID!): User
     getTopSellingProducts(limit: Int!): [TopProduct!]!
+    getCustomerSpending(customerId: ID!): CustomerSpending!
   }
 
   type Mutation {

@@ -11,7 +11,7 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#646cff',
+      main: '#6B46C1',
     },
   },
 })
@@ -24,17 +24,17 @@ function App() {
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <AppBar position="fixed">
             <Toolbar>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1, mr: 3, textAlign: 'left' }}>
                 Dashboard
               </Typography>
               <Box sx={{ display: 'flex', gap: 2 }}>
-                <MuiLink component={Link} to="/" color="inherit" sx={{ textDecoration: 'none' }}>
+                <MuiLink component={Link} to="/" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: 'rgba(255, 255, 255, 0.7)' } }}>
                   Customer Dashboard
                 </MuiLink>
-                <MuiLink component={Link} to="/top-products" color="inherit" sx={{ textDecoration: 'none' }}>
+                <MuiLink component={Link} to="/top-products" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: 'rgba(255, 255, 255, 0.7)' } }}>
                   Top Products
                 </MuiLink>
-                <MuiLink component={Link} to="/sales-analytics" color="inherit" sx={{ textDecoration: 'none' }}>
+                <MuiLink component={Link} to="/sales-analytics" color="inherit" sx={{ textDecoration: 'none', '&:hover': { color: 'rgba(255, 255, 255, 0.7)' } }}>
                   Sales Analytics
                 </MuiLink>
               </Box>

@@ -15,6 +15,12 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  category: {
+    type: String,
+    required: true,
+    trim: true,
+    enum: ['Electronics', 'Computers', 'Accessories', 'Wearables', 'Gaming']
+  },
   quantitySold: {
     type: Number,
     default: 0,

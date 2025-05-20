@@ -81,6 +81,75 @@ export const resolvers = {
         throw new Error('Error fetching customer spending data');
       }
     },
+    getSalesAnalytics: async (_, { startDate, endDate }) => {
+      try {
+        // Parse dates and validate
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          throw new Error('Invalid date format. Please use ISO 8601 format (e.g., "2024-01-01")');
+        }
+
+        if (start > end) {
+          throw new Error('Start date must be before end date');
+        }
+
+        // Get completed orders within date range
+        const orders = await Order.find({
+          status: 'COMPLETED',
+          orderDate: {
+            $gte: start,
+            $lte: end
+          }
+        }).populate('items.product');
+
+        // Calculate total revenue and count completed orders
+        const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        const completedOrders = orders.length;
+
+        // Calculate revenue per category
+        const categoryData = {};
+
+        // Process each order and its items
+        orders.forEach(order => {
+          order.items.forEach(item => {
+            const category = item.product.category;
+            const itemRevenue = item.price * item.quantity;
+
+            if (!categoryData[category]) {
+              categoryData[category] = {
+                revenue: 0,
+                numberOfOrders: 0,
+                totalValue: 0
+              };
+            }
+
+            categoryData[category].revenue += itemRevenue;
+            categoryData[category].numberOfOrders += 1;
+            categoryData[category].totalValue += itemRevenue;
+          });
+        });
+
+        // Format category data for response
+        const revenuePerCategory = Object.entries(categoryData).map(([category, data]) => ({
+          category,
+          revenue: data.revenue,
+          numberOfOrders: data.numberOfOrders,
+          averageOrderValue: data.totalValue / data.numberOfOrders
+        }));
+
+        return {
+          totalRevenue,
+          completedOrders,
+          revenuePerCategory,
+          startDate: start.toISOString(),
+          endDate: end.toISOString()
+        };
+      } catch (error) {
+        throw new Error(`Error fetching sales analytics: ${error.message}`);
+      }
+    },
   },
   
   Mutation: {

@@ -11,6 +11,7 @@ export const typeDefs = `#graphql
     name: String!
     description: String!
     price: Float!
+    category: String!
     quantitySold: Int!
     createdAt: String!
     updatedAt: String!
@@ -55,11 +56,27 @@ export const typeDefs = `#graphql
     numberOfOrders: Int!
   }
 
+  type CategoryRevenue {
+    category: String!
+    revenue: Float!
+    numberOfOrders: Int!
+    averageOrderValue: Float!
+  }
+
+  type SalesAnalytics {
+    totalRevenue: Float!
+    completedOrders: Int!
+    revenuePerCategory: [CategoryRevenue!]!
+    startDate: String!
+    endDate: String!
+  }
+
   type Query {
     users: [User!]!
     user(id: ID!): User
     getTopSellingProducts(limit: Int!): [TopProduct!]!
     getCustomerSpending(customerId: ID!): CustomerSpending!
+    getSalesAnalytics(startDate: String!, endDate: String!): SalesAnalytics!
   }
 
   type Mutation {

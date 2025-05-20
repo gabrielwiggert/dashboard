@@ -8,30 +8,35 @@ const sampleProducts = [
     name: "Smartphone X",
     description: "Latest flagship smartphone with advanced features",
     price: 999.99,
+    category: "Electronics",
     quantitySold: 1500
   },
   {
     name: "Laptop Pro",
     description: "High-performance laptop for professionals",
     price: 1499.99,
+    category: "Computers",
     quantitySold: 800
   },
   {
     name: "Wireless Earbuds",
     description: "Premium wireless earbuds with noise cancellation",
     price: 199.99,
+    category: "Accessories",
     quantitySold: 2500
   },
   {
     name: "Smart Watch",
     description: "Fitness and health tracking smartwatch",
     price: 299.99,
+    category: "Wearables",
     quantitySold: 1200
   },
   {
     name: "Gaming Console",
     description: "Next-gen gaming console with 4K support",
     price: 499.99,
+    category: "Gaming",
     quantitySold: 1800
   }
 ];

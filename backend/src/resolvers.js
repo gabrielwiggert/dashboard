@@ -2,6 +2,7 @@ import { User } from './models/User.js';
 import { Product } from './models/Product.js';
 import { Customer } from './models/Customer.js';
 import { Order } from './models/Order.js';
+import mongoose from 'mongoose';
 
 export const resolvers = {
   Query: {
@@ -22,22 +23,24 @@ export const resolvers = {
     getTopSellingProducts: async (_, { limit }) => {
       try {
         // Validate limit
-        const validLimit = Math.min(Math.max(1, limit), 100); // Ensure limit is between 1 and 100
-        
-        // Get products sorted by quantitySold in descending order
-        const products = await Product.find()
-          .sort({ quantitySold: -1 })
-          .limit(validLimit);
+        const validLimit = Math.min(Math.max(1, limit), 100);
 
-        // Map products to TopProduct type with rank
-        return products.map((product, index) => ({
-          id: product._id,
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          quantitySold: product.quantitySold,
-          rank: index + 1 // Add rank based on position in sorted array
-        }));
+        const products = await Product.aggregate([
+          {
+            $sort: { quantitySold: -1 }
+          },
+          {
+            $limit: validLimit
+          },
+          {
+            $addFields: {
+              id: '$_id',
+              rank: { $add: [{ $indexOfArray: [{ $range: [0, validLimit] }, '$$CURRENT.@index'] }, 1] }
+            }
+          }
+        ]);
+
+        return products;
       } catch (error) {
         throw new Error('Error fetching top selling products');
       }
@@ -45,38 +48,58 @@ export const resolvers = {
     getCustomerSpending: async (_, { customerId }) => {
       try {
         // Check if customer exists
-        const customer = await Customer.findById(customerId);
-        if (!customer) {
+        const customerExists = await Customer.findById(customerId);
+        if (!customerExists) {
           throw new Error('Customer not found');
         }
 
-        // Get all completed orders for the customer
-        const orders = await Order.find({
-          customer: customerId,
-          status: 'COMPLETED'
-        }).sort({ orderDate: -1 });
+        const [result] = await Order.aggregate([
+          {
+            $match: {
+              customer: new mongoose.Types.ObjectId(customerId),
+              status: 'COMPLETED'
+            }
+          },
+          {
+            $facet: {
+              spending: [
+                {
+                  $group: {
+                    _id: null,
+                    totalSpent: { $sum: '$totalAmount' },
+                    numberOfOrders: { $sum: 1 },
+                    lastOrderDate: { $max: '$orderDate' }
+                  }
+                },
+                {
+                  $project: {
+                    _id: 0,
+                    totalSpent: 1,
+                    averageOrderValue: { $divide: ['$totalSpent', '$numberOfOrders'] },
+                    lastOrderDate: 1,
+                    numberOfOrders: 1
+                  }
+                }
+              ]
+            }
+          },
+          {
+            $unwind: {
+              path: '$spending',
+              preserveNullAndEmptyArrays: true
+            }
+          },
+          {
+            $project: {
+              totalSpent: { $ifNull: ['$spending.totalSpent', 0] },
+              averageOrderValue: { $ifNull: ['$spending.averageOrderValue', 0] },
+              lastOrderDate: '$spending.lastOrderDate',
+              numberOfOrders: { $ifNull: ['$spending.numberOfOrders', 0] }
+            }
+          }
+        ]);
 
-        if (orders.length === 0) {
-          return {
-            totalSpent: 0,
-            averageOrderValue: 0,
-            lastOrderDate: null,
-            numberOfOrders: 0
-          };
-        }
-
-        // Calculate metrics
-        const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-        const averageOrderValue = totalSpent / orders.length;
-        const lastOrderDate = orders[0].orderDate; // First order in the sorted array is the most recent
-        const numberOfOrders = orders.length;
-
-        return {
-          totalSpent,
-          averageOrderValue,
-          lastOrderDate,
-          numberOfOrders
-        };
+        return result;
       } catch (error) {
         throw new Error('Error fetching customer spending data');
       }
@@ -95,56 +118,82 @@ export const resolvers = {
           throw new Error('Start date must be before end date');
         }
 
-        // Get completed orders within date range
-        const orders = await Order.find({
-          status: 'COMPLETED',
-          orderDate: {
-            $gte: start,
-            $lte: end
-          }
-        }).populate('items.product');
-
-        // Calculate total revenue and count completed orders
-        const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-        const completedOrders = orders.length;
-
-        // Calculate revenue per category
-        const categoryData = {};
-
-        // Process each order and its items
-        orders.forEach(order => {
-          order.items.forEach(item => {
-            const category = item.product.category;
-            const itemRevenue = item.price * item.quantity;
-
-            if (!categoryData[category]) {
-              categoryData[category] = {
-                revenue: 0,
-                numberOfOrders: 0,
-                totalValue: 0
-              };
+        const [result] = await Order.aggregate([
+          {
+            $match: {
+              status: 'COMPLETED',
+              orderDate: { $gte: start, $lte: end }
             }
-
-            categoryData[category].revenue += itemRevenue;
-            categoryData[category].numberOfOrders += 1;
-            categoryData[category].totalValue += itemRevenue;
-          });
-        });
-
-        // Format category data for response
-        const revenuePerCategory = Object.entries(categoryData).map(([category, data]) => ({
-          category,
-          revenue: data.revenue,
-          numberOfOrders: data.numberOfOrders,
-          averageOrderValue: data.totalValue / data.numberOfOrders
-        }));
+          },
+          {
+            $unwind: '$items'
+          },
+          {
+            $lookup: {
+              from: 'products',
+              localField: 'items.product',
+              foreignField: '_id',
+              as: 'productInfo'
+            }
+          },
+          {
+            $unwind: '$productInfo'
+          },
+          {
+            $facet: {
+              overall: [
+                {
+                  $group: {
+                    _id: null,
+                    totalRevenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } },
+                    completedOrders: { $addToSet: '$_id' }
+                  }
+                },
+                {
+                  $project: {
+                    _id: 0,
+                    totalRevenue: 1,
+                    completedOrders: { $size: '$completedOrders' }
+                  }
+                }
+              ],
+              categoryStats: [
+                {
+                  $group: {
+                    _id: '$productInfo.category',
+                    revenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } },
+                    numberOfOrders: { $sum: 1 },
+                    totalValue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } }
+                  }
+                },
+                {
+                  $project: {
+                    category: '$_id',
+                    revenue: 1,
+                    numberOfOrders: 1,
+                    averageOrderValue: { $divide: ['$totalValue', '$numberOfOrders'] },
+                    _id: 0
+                  }
+                }
+              ]
+            }
+          },
+          {
+            $project: {
+              totalRevenue: { $arrayElemAt: ['$overall.totalRevenue', 0] },
+              completedOrders: { $arrayElemAt: ['$overall.completedOrders', 0] },
+              revenuePerCategory: '$categoryStats',
+              startDate: { $literal: start.toISOString() },
+              endDate: { $literal: end.toISOString() }
+            }
+          }
+        ]);
 
         return {
-          totalRevenue,
-          completedOrders,
-          revenuePerCategory,
-          startDate: start.toISOString(),
-          endDate: end.toISOString()
+          ...result,
+          totalRevenue: result.totalRevenue || 0,
+          completedOrders: result.completedOrders || 0,
+          revenuePerCategory: result.revenuePerCategory || []
         };
       } catch (error) {
         throw new Error(`Error fetching sales analytics: ${error.message}`);

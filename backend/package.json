@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "seed": "node src/scripts/seedProducts.js",
-    "seed-customers": "node src/scripts/seedCustomersAndOrders.js"
+    "seed-customers": "node src/scripts/seedCustomersAndOrders.js",
+    "analyze": "node src/scripts/analyzeQueries.js"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",

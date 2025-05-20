@@ -5,6 +5,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import { typeDefs } from './schema.js';
 import { resolvers } from './resolvers.js';
+import { createIndexes } from './models/indexes.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -16,9 +17,13 @@ const server = new ApolloServer({
   resolvers,
 });
 
-// Connect to MongoDB
+// Connect to MongoDB and create indexes
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
+  .then(async () => {
+    console.log('Connected to MongoDB');
+    // Create indexes
+    await createIndexes();
+  })
   .catch(error => console.error('MongoDB connection error:', error));
 
 // Start Apollo Server

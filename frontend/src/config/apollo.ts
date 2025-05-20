@@ -2,7 +2,7 @@ import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_API_URL || 'http://localhost:4000/graphql',
-  credentials: 'include', // This enables sending cookies with requests
+  credentials: 'omit', // Don't send credentials for now
 });
 
 export const apolloClient = new ApolloClient({
